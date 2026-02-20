@@ -601,6 +601,14 @@ export function SessionChatContent() {
   const { openMobileSidebar } = useSessionLayout();
   const hasMounted = useHasMounted();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const {
     state: recordingState,
     error: recordingError,
@@ -1088,7 +1096,12 @@ export function SessionChatContent() {
   // After a chat turn completes, immediately sync status from the server.
   // If the sandbox was hibernated during the turn (tool calls failed), this
   // updates the UI right away instead of waiting for the next 15s poll.
-  const prevStatusRef = useRef(status);
+  // Initialize to null (not `status`) so the first render always reconciles.
+  // When navigating back to a chat whose stream finished in the background,
+  // status is already "ready" but the optimistic streaming overlay may still
+  // be set.  Starting from null makes `becameReady` true on mount, which
+  // clears the stale overlay immediately.
+  const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
     const prevStatus = prevStatusRef.current;
     const wasStreaming = prevStatus === "streaming";
@@ -1096,7 +1109,15 @@ export function SessionChatContent() {
     const becameError = status === "error" && prevStatus !== "error";
     const shouldClearStreaming = status === "error" || becameReady;
     prevStatusRef.current = status;
-    if (shouldClearStreaming) {
+    // Skip clearing the streaming overlay during unmount. When the user
+    // switches to another chat, the cleanup effect calls chatInstance.stop()
+    // which triggers an AbortError -> status "ready" transition. If that
+    // status change propagates before React finishes tearing down the
+    // component tree, this effect would clear the optimistic streaming
+    // overlay even though the server-side stream is still running. The
+    // SWR polling and overlay reconciliation will clear it once the server
+    // confirms the stream has actually ended.
+    if (shouldClearStreaming && isMountedRef.current) {
       void setChatStreaming(chatInfo.id, false);
     }
     if (becameError && pendingOptimisticTitleChatIdRef.current) {
@@ -1107,7 +1128,7 @@ export function SessionChatContent() {
     if (becameReady) {
       pendingOptimisticTitleChatIdRef.current = null;
     }
-    if (wasStreaming && status === "ready") {
+    if (wasStreaming && status === "ready" && isMountedRef.current) {
       void requestStatusSync("force");
       void requestMarkChatRead("force");
       void refreshChats();
