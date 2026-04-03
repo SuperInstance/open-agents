@@ -12,6 +12,7 @@ const spies = {
   clearActiveStream: mock(() => Promise.resolve()),
   recordWorkflowUsage: mock(() => Promise.resolve()),
   refreshDiffCache: mock(() => Promise.resolve()),
+  refreshLifecycleActivity: mock(() => Promise.resolve()),
   runAutoCommitStep: mock(() =>
     Promise.resolve({ committed: false, pushed: false }),
   ),
@@ -425,6 +426,21 @@ describe("runAgentWorkflow", () => {
         rawFinishReason: "provider_tool_use",
       },
     ]);
+  });
+
+  test("refreshes lifecycle activity before clearing the active stream", async () => {
+    const callOrder: string[] = [];
+    spies.refreshLifecycleActivity.mockImplementationOnce(async () => {
+      callOrder.push("refresh-lifecycle");
+    });
+    spies.clearActiveStream.mockImplementationOnce(async () => {
+      callOrder.push("clear-stream");
+    });
+
+    await runAgentWorkflow(makeOptions());
+
+    expect(spies.refreshLifecycleActivity).toHaveBeenCalledTimes(1);
+    expect(callOrder).toEqual(["refresh-lifecycle", "clear-stream"]);
   });
 
   test("persists sandbox state when sandbox is present", async () => {

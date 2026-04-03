@@ -22,6 +22,7 @@ import {
   persistSandboxState,
   recordWorkflowUsage,
   refreshDiffCache,
+  refreshLifecycleActivity,
   runAutoCommitStep,
   runAutoCreatePrStep,
 } from "./chat-post-finish";
@@ -283,6 +284,7 @@ export async function runAgentWorkflow(options: Options) {
   let totalUsage: LanguageModelUsage | undefined;
   let finalFinishReason: FinishReason | undefined;
   let streamClosed = false;
+  const sandboxState = options.agentOptions.sandbox?.state;
 
   try {
     for (
@@ -325,6 +327,10 @@ export async function runAgentWorkflow(options: Options) {
       }
     }
 
+    if (sandboxState) {
+      await refreshLifecycleActivity(options.sessionId);
+    }
+
     // Close the stream immediately after generation so the UI is unblocked.
     await Promise.all([
       clearActiveStream(options.chatId, workflowRunId),
@@ -347,7 +353,6 @@ export async function runAgentWorkflow(options: Options) {
     );
 
     // Persist the sandbox state so lifecycle timers stay accurate.
-    const sandboxState = options.agentOptions.sandbox?.state;
     if (sandboxState) {
       await persistSandboxState(options.sessionId, sandboxState);
     }
