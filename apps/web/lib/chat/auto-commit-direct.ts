@@ -3,6 +3,7 @@ import { generateText } from "ai";
 import { gateway } from "@open-harness/agent";
 import { getGitHubAccount } from "@/lib/db/accounts";
 import { buildGitHubAuthRemoteUrl } from "@/lib/github/repo-identifiers";
+import { getAppCoAuthorTrailer } from "@/lib/github/app-auth";
 import { getUserGitHubToken } from "@/lib/github/user-token";
 
 export interface AutoCommitParams {
@@ -78,10 +79,14 @@ export async function performAutoCommit(
     await sandbox.exec(`git config user.email '${userEmail}'`, cwd, 5000);
   }
 
-  // 6. Commit
+  // 6. Commit with Co-Authored-By trailer for the agent app
   const escapedMessage = commitMessage.replace(/'/g, "'\\''");
+  const coAuthorTrailer = await getAppCoAuthorTrailer();
+  const trailerArg = coAuthorTrailer
+    ? ` -m '${coAuthorTrailer.replace(/'/g, "'\\''")}'`
+    : "";
   const commitResult = await sandbox.exec(
-    `git commit -m '${escapedMessage}'`,
+    `git commit -m '${escapedMessage}'${trailerArg}`,
     cwd,
     10000,
   );
