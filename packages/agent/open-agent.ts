@@ -22,6 +22,9 @@ import {
   todoWriteTool,
   webFetchTool,
   writeFileTool,
+  platoReasonTool,
+  fleetBottleTool,
+  fleetQueryTool,
 } from "./tools";
 
 export interface AgentModelSelection {
@@ -58,7 +61,6 @@ function normalizeAgentModelSelection(
   if (!selection) {
     return { id: fallbackId };
   }
-
   return typeof selection === "string" ? { id: selection } : selection;
 }
 
@@ -74,6 +76,11 @@ const tools = {
   ask_user_question: askUserQuestionTool,
   skill: skillTool,
   web_fetch: webFetchTool,
+  // Fleet tools
+  fleet_bottle: fleetBottleTool,
+  fleet_query: fleetQueryTool,
+  // PLATO structured reasoning
+  plato_reason: platoReasonTool,
 } satisfies ToolSet;
 
 export const openAgent = new ToolLoopAgent({
@@ -84,10 +91,7 @@ export const openAgent = new ToolLoopAgent({
   callOptionsSchema,
   prepareStep: ({ messages, model, steps: _steps }) => {
     return {
-      messages: addCacheControl({
-        messages,
-        model,
-      }),
+      messages: addCacheControl({ messages, model }),
     };
   },
   prepareCall: ({ options, ...settings }) => {
@@ -111,6 +115,7 @@ export const openAgent = new ToolLoopAgent({
           providerOptionsOverrides: subagentSelection.providerOptionsOverrides,
         })
       : undefined;
+
     const customInstructions = options.customInstructions;
     const sandbox = options.sandbox;
     const skills = options.skills ?? [];
