@@ -6,4 +6,4 @@ export { skillFrontmatterSchema, frontmatterToOptions } from "./types";
 export { discoverSkills, parseSkillFrontmatter } from "./discovery";
 
 // Loader
-export { extractSkillBody, substituteArguments } from "./loader";
+export { extractSkillBody, substituteArguments, injectSkillDirectory } from "./loader";
