@@ -1,5 +1,5 @@
 {
-  "name": "open-agents",
+  "name": "fleet-agent",
   "private": true,
   "workspaces": {
     "packages": [

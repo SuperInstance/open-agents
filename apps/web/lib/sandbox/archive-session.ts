@@ -1,6 +1,6 @@
 import "server-only";
 
-import { connectSandbox } from "@open-agents/sandbox";
+import { connectSandbox } from "@cocapn/sandbox";
 import { getSessionById, updateSession } from "@/lib/db/sessions";
 import { findPullRequest, getPullRequestStatus } from "@/lib/github/pulls";
 import { getUserGitHubToken } from "@/lib/github/token";

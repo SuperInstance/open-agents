@@ -46,3 +46,10 @@ export {
   type VercelSandboxConnectConfig,
   type VercelState,
 } from "./vercel";
+
+// oracle
+export {
+  connectOracleSandbox,
+  OracleSandbox,
+  type OracleSandboxConfig,
+} from "./oracle";

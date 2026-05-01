@@ -1,4 +1,4 @@
-import { connectSandbox, type Sandbox } from "@open-agents/sandbox";
+import { connectSandbox, type Sandbox } from "@cocapn/sandbox";
 import type { LanguageModel, ModelMessage } from "ai";
 import * as path from "path";
 import type { AgentContext } from "../types";

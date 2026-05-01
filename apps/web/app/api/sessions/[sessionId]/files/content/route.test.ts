@@ -69,7 +69,7 @@ mock.module("@/app/api/sessions/_lib/session-context", () => ({
   requireOwnedSessionWithSandboxGuard: async () => ownedSessionResult,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: async (sandboxState: TestSandboxState) => {
     if (connectSandboxError) {
       throw connectSandboxError;

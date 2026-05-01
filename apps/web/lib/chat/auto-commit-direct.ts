@@ -1,4 +1,4 @@
-import type { Sandbox } from "@open-agents/sandbox";
+import type { Sandbox } from "@cocapn/sandbox";
 import {
   hasUncommittedChanges,
   stageAll,
@@ -6,9 +6,9 @@ import {
   getStagedDiff,
   syncToRemote,
   withTemporaryGitHubAuth,
-} from "@open-agents/sandbox";
+} from "@cocapn/sandbox";
 import { generateText } from "ai";
-import { gateway } from "@open-agents/agent";
+import { gateway } from "@cocapn/agent";
 import { updateSession } from "@/lib/db/sessions";
 import { generateBranchName, isSafeBranchName } from "@/lib/git/helpers";
 import {

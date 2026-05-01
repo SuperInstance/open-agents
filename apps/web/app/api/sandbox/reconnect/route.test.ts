@@ -59,7 +59,7 @@ mock.module("@/lib/sandbox/lifecycle", () => ({
     typeof state?.expiresAt === "number" ? new Date(state.expiresAt) : null,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: async (state: {
     type: "vercel";
     sandboxName?: string;

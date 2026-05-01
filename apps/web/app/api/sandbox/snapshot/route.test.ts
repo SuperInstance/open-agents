@@ -76,7 +76,7 @@ mock.module("@/lib/sandbox/lifecycle-kick", () => ({
   },
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: async (
     state: Record<string, unknown>,
     options?: Record<string, unknown>,

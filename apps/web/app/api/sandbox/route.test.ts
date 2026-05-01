@@ -185,7 +185,7 @@ mock.module("@/lib/skills/global-skill-installer", () => ({
   },
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: async (config: ConnectConfig) => {
     connectConfigs.push(config);
 

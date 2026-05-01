@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatTokens } from "@open-agents/shared";
+import { formatTokens } from "@cocapn/shared";
 import type { UsageDomainLeaderboard } from "@/lib/usage/types";
 
 interface DomainUsageLeaderboardSectionProps {

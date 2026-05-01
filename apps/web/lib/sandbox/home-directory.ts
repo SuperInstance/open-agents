@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { Sandbox } from "@open-agents/sandbox";
+import type { Sandbox } from "@cocapn/sandbox";
 
 const DEFAULT_HOME_DIRECTORY = "/root";
 const HOME_RESOLUTION_TIMEOUT_MS = 5_000;

@@ -1,4 +1,4 @@
-import { withTemporaryGitHubAuth, type Sandbox } from "@open-agents/sandbox";
+import { withTemporaryGitHubAuth, type Sandbox } from "@cocapn/sandbox";
 import { looksLikeCommitHash } from "@/lib/git/helpers";
 import { updateSession } from "@/lib/db/sessions";
 import { openPullRequest, findPullRequest } from "@/lib/github/pulls";

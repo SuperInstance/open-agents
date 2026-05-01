@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import type { SkillMetadata } from "@open-agents/agent";
+import type { SkillMetadata } from "@cocapn/agent";
 
 mock.module("server-only", () => ({}));
 
@@ -130,7 +130,7 @@ function registerRouteMocks() {
     isSandboxUnavailableError: () => false,
   }));
 
-  mock.module("@open-agents/sandbox", () => ({
+  mock.module("@cocapn/sandbox", () => ({
     connectSandbox: async (sandboxState: TestSandboxState) => {
       connectCalls.push(sandboxState);
       return {
@@ -146,7 +146,7 @@ function registerRouteMocks() {
     },
   }));
 
-  mock.module("@open-agents/agent", () => ({
+  mock.module("@cocapn/agent", () => ({
     discoverSkills: async (_sandbox: unknown, skillDirs: string[]) => {
       discoverCalls.push({ skillDirs });
       return discoveredSkills;

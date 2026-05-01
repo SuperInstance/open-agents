@@ -7,7 +7,7 @@ import {
   syncToRemote,
   withTemporaryGitHubAuth,
   hasUncommittedChanges as checkUncommitted,
-} from "@open-agents/sandbox";
+} from "@cocapn/sandbox";
 import {
   mintInstallationToken,
   revokeInstallationToken,

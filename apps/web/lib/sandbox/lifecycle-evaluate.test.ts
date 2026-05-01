@@ -49,7 +49,7 @@ mock.module("@/lib/db/sessions", () => ({
   updateSession: spies.updateSession,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: spies.connectSandbox,
 }));
 

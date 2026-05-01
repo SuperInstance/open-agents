@@ -1,5 +1,5 @@
-import { discoverSkills } from "@open-agents/agent";
-import { connectSandbox } from "@open-agents/sandbox";
+import { discoverSkills } from "@cocapn/agent";
+import { connectSandbox } from "@cocapn/sandbox";
 import {
   requireAuthenticatedUser,
   requireOwnedSession,

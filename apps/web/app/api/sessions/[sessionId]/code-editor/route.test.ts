@@ -129,7 +129,7 @@ mock.module("@/app/api/sessions/_lib/session-context", () => ({
   requireOwnedSessionWithSandboxGuard: requireOwnedSessionWithSandboxGuardMock,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: connectSandboxMock,
 }));
 

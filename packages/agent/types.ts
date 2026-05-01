@@ -1,4 +1,4 @@
-import type { SandboxState } from "@open-agents/sandbox";
+import type { SandboxState } from "@cocapn/sandbox";
 import type { LanguageModel } from "ai";
 import { z } from "zod";
 import type { AgentSandboxContext } from "./open-agent";

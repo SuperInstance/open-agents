@@ -1,9 +1,9 @@
-import { discoverSkills } from "@open-agents/agent";
+import { discoverSkills } from "@cocapn/agent";
 import {
   connectSandbox,
   type Sandbox,
   type SandboxState,
-} from "@open-agents/sandbox";
+} from "@cocapn/sandbox";
 import type { UIMessageChunk } from "ai";
 import { getWritable } from "workflow";
 import type { WebAgentWorkspaceStatusData } from "@/app/types";

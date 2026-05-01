@@ -1,4 +1,4 @@
-import type { Sandbox } from "@open-agents/sandbox";
+import type { Sandbox } from "@cocapn/sandbox";
 import {
   buildUntrackedDiffFile,
   isGeneratedFile,

@@ -1,6 +1,6 @@
 "use server";
 
-import { connectSandbox } from "@open-agents/sandbox";
+import { connectSandbox } from "@cocapn/sandbox";
 import { getSessionById, updateSession } from "@/lib/db/sessions";
 import { isSandboxActive } from "@/lib/sandbox/utils";
 import { getServerSession } from "@/lib/session/get-server-session";

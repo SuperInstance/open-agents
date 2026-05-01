@@ -1,4 +1,4 @@
-import type { Sandbox } from "@open-agents/sandbox";
+import type { Sandbox } from "@cocapn/sandbox";
 
 export type DiffFileShape = {
   path: string;

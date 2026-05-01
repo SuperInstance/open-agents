@@ -48,7 +48,7 @@ mock.module("ai", () => {
   };
 });
 
-mock.module("@open-agents/sandbox", () => ({
+mock.module("@cocapn/sandbox", () => ({
   connectSandbox: async (state: { sandboxId?: string }) => {
     if (!state.sandboxId) {
       throw new Error("Missing sandboxId in test sandbox state.");

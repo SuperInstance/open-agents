@@ -1,5 +1,5 @@
 import { isToolUIPart, type LanguageModelUsage, type UIMessageChunk } from "ai";
-import type { SandboxState, Sandbox } from "@open-agents/sandbox";
+import type { SandboxState, Sandbox } from "@cocapn/sandbox";
 import type { WebAgentUIMessage } from "@/app/types";
 import type { AutoCommitResult } from "@/lib/chat/auto-commit-direct";
 import type { AutoCreatePrResult } from "@/lib/chat/auto-pr-direct";
@@ -221,7 +221,7 @@ export async function persistSandboxState(
 ): Promise<void> {
   "use step";
   try {
-    const { connectSandbox } = await import("@open-agents/sandbox");
+    const { connectSandbox } = await import("@cocapn/sandbox");
     const sandbox = await connectSandbox(sandboxState);
     const currentState = sandbox.getState?.() as SandboxState | undefined;
     if (currentState) {
@@ -353,7 +353,7 @@ export async function recordWorkflowUsage(
 
   try {
     const { collectTaskToolUsageEvents, sumLanguageModelUsage } =
-      await import("@open-agents/agent");
+      await import("@cocapn/agent");
 
     if (workflowRun) {
       try {
@@ -456,7 +456,7 @@ export async function refreshDiffCache(
 ): Promise<void> {
   "use step";
   try {
-    const { connectSandbox } = await import("@open-agents/sandbox");
+    const { connectSandbox } = await import("@cocapn/sandbox");
     const { computeAndCacheDiff } = await import("@/lib/diff/compute-diff");
     const sandbox: Sandbox = await connectSandbox(sandboxState);
     await computeAndCacheDiff({ sandbox, sessionId });
@@ -489,7 +489,7 @@ export async function hasAutoCommitChangesStep(params: {
 }): Promise<boolean> {
   "use step";
   try {
-    const { connectSandbox } = await import("@open-agents/sandbox");
+    const { connectSandbox } = await import("@cocapn/sandbox");
     const sandbox: Sandbox = await connectSandbox(params.sandboxState);
     const statusResult = await sandbox.exec(
       "git status --porcelain",
@@ -518,7 +518,7 @@ export async function runAutoCommitStep(params: {
 }): Promise<AutoCommitResult> {
   "use step";
   try {
-    const { connectSandbox } = await import("@open-agents/sandbox");
+    const { connectSandbox } = await import("@cocapn/sandbox");
     const { performAutoCommit } = await import("@/lib/chat/auto-commit-direct");
     const sandbox = await connectSandbox(params.sandboxState);
     return await performAutoCommit({
@@ -549,7 +549,7 @@ export async function runAutoCreatePrStep(params: {
 }): Promise<AutoCreatePrResult> {
   "use step";
   try {
-    const { connectSandbox } = await import("@open-agents/sandbox");
+    const { connectSandbox } = await import("@cocapn/sandbox");
     const { performAutoCreatePr } = await import("@/lib/chat/auto-pr-direct");
     const sandbox = await connectSandbox(params.sandboxState);
     const result = await performAutoCreatePr({

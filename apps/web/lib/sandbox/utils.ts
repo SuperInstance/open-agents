@@ -1,4 +1,4 @@
-import type { SandboxState } from "@open-agents/sandbox";
+import type { SandboxState } from "@cocapn/sandbox";
 import { SANDBOX_EXPIRES_BUFFER_MS } from "./config";
 
 function hasNonEmptyString(value: unknown): value is string {

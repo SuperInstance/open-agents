@@ -1,4 +1,4 @@
-import { connectSandbox } from "@open-agents/sandbox";
+import { connectSandbox } from "@cocapn/sandbox";
 import { checkBotProtection } from "@/lib/botid";
 import { generateBranchName, looksLikeCommitHash } from "@/lib/git/helpers";
 import { getSessionById, updateSession } from "@/lib/db/sessions";

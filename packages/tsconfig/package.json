@@ -1,5 +1,5 @@
 {
-  "name": "@open-agents/tsconfig",
+  "name": "@cocapn/tsconfig",
   "version": "0.0.0",
   "private": true,
   "files": [

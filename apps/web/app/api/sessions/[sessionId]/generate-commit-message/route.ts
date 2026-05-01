@@ -1,4 +1,4 @@
-import { connectSandbox } from "@open-agents/sandbox";
+import { connectSandbox } from "@cocapn/sandbox";
 import { gateway, generateText } from "ai";
 import { checkBotProtection } from "@/lib/botid";
 import { getSessionById } from "@/lib/db/sessions";

@@ -17,3 +17,5 @@ export {
 } from "./ask-user-question";
 export { skillTool, type SkillToolInput } from "./skill";
 export { webFetchTool } from "./fetch";
+export { fleetBottleTool, sendFleetBottle } from "./fleet-bottle";
+export { fleetQueryTool, queryFleetAgent } from "./fleet-query";

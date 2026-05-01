@@ -4,6 +4,17 @@ This file provides guidance for AI coding agents working in this repository.
 
 **This is a living document.** When you make a mistake or learn something new about this codebase, add it to [Lessons Learned](docs/agents/lessons-learned.md).
 
+## Fleet Context
+
+This is the **fleet-agent** runtime — the core agent workbench for the Cocapn fleet. Agents use this to go from prompt to deployed code.
+
+**Fleet concepts:**
+- `@cocapn/fleet-agent` — The agent crew (tools, subagents, PLATO reasoning, fleet communication)
+- `@cocapn/vessel` — The sandbox vessel (Vercel Firecracker or Oracle Cloud SSH)
+- `@cocapn/shared` — Shared utilities
+- **keeper service** — Fleet communication hub at port 8900
+- **PLATO** — Structured reasoning decomposition chain
+
 ## Quick Links
 
 - [Architecture & Workspace Structure](docs/agents/architecture.md)

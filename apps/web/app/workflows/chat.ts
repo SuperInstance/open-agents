@@ -8,7 +8,7 @@ import {
   pruneMessages,
   type UIMessageChunk,
 } from "ai";
-import type { OpenAgentCallOptions } from "@open-agents/agent";
+import type { OpenAgentCallOptions } from "@cocapn/agent";
 import { getWorkflowMetadata, getWritable } from "workflow";
 import { getRun } from "workflow/api";
 import { assistantFileLinkPrompt } from "@/lib/assistant-file-links";
