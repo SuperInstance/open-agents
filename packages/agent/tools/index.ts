@@ -17,3 +17,8 @@ export {
 } from "./ask-user-question";
 export { skillTool, type SkillToolInput } from "./skill";
 export { webFetchTool } from "./fetch";
+// Fleet tools
+export { fleetBottleTool } from "./fleet-bottle";
+export { fleetQueryTool } from "./fleet-query";
+// PLATO reasoning
+export { platoReasonTool } from "./plato-reason";
