@@ -1,69 +1,51 @@
+/**
+ * Fleet Query Tool — Query other fleet agents for information.
+ * 
+ * Use this to ask other agents questions or get their status.
+ * The keeper routes the query and returns the agent's response.
+ */
 import { z } from "zod";
-import { tool } from "./index";
 
-export const fleetQueryTool = tool({
-  description: "Query other fleet agents for information via the keeper service at port 8900. Use this to request data or status from other agents in the fleet.",
-  parameters: z.object({
-    target: z.string().describe("The name/ID of the target fleet agent"),
-    query: z.string().describe("The query to send to the target agent"),
-    timeout: z.number().optional().default(30000).describe("Query timeout in milliseconds"),
-  }),
+const schema = z.object({
+  to: z.string().describe("Target agent name"),
+  question: z.string().describe("Question or query for the target agent"),
+  timeout: z.number().default(30000).describe("Timeout in ms"),
 });
 
-interface QueryResponse {
-  success: boolean;
-  response?: string;
-  error?: string;
-  timestamp: number;
-}
+const KEEPER_HOST = process.env.KEEPER_HOST ?? "http://localhost:8900";
 
-export async function queryFleetAgent(
-  target: string,
-  query: string,
-  timeout: number = 30000,
-): Promise<QueryResponse> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+export async function fleetQuery(
+  to: string,
+  question: string,
+  timeout = 30000,
+): Promise<{ answer: string; agent: string; latency: number }> {
+  const start = Date.now();
 
-    const response = await fetch("http://localhost:8900/query", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Fleet-Agent": "fleet-agent",
-      },
-      body: JSON.stringify({
-        target,
-        query,
-        sender: "fleet-agent",
-        timestamp: Date.now(),
-      }),
-      signal: controller.signal,
-    });
+  const res = await fetch(`${KEEPER_HOST}/agents/${to}/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, timeout }),
+  });
 
-    clearTimeout(timeoutId);
+  const latency = Date.now() - start;
 
-    if (!response.ok) {
-      return {
-        success: false,
-        error: `Keeper responded with ${response.status}`,
-        timestamp: Date.now(),
-      };
-    }
-
-    return await response.json();
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      return {
-        success: false,
-        error: `Query timed out after ${timeout}ms`,
-        timestamp: Date.now(),
-      };
-    }
+  if (!res.ok) {
     return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-      timestamp: Date.now(),
+      answer: `Query to ${to} failed (${res.status}): agent may be offline`,
+      agent: to,
+      latency,
     };
   }
+
+  const data = (await res.json()) as { answer?: string };
+  return {
+    answer: data.answer ?? "No response from agent",
+    agent: to,
+    latency,
+  };
 }
+
+export const fleetQueryTool = {
+  description: "Ask another fleet agent a question and get a response. Use this to leverage collective fleet knowledge rather than solving everything independently.",
+  parameters: schema,
+};

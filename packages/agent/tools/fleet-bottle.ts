@@ -1,57 +1,49 @@
+/**
+ * Fleet Bottle Tool — Send messages to other fleet agents via keeper:8900.
+ * 
+ * Fleet agents use bottles (messages) to communicate across the fleet.
+ * Bottles are posted to the keeper service which routes them to target agents.
+ */
 import { z } from "zod";
-import { tool } from "./index";
 
-export const fleetBottleTool = tool({
-  description: "Send a message to another fleet agent via the keeper service at port 8900. Use this to communicate with other agents in the fleet.",
-  parameters: z.object({
-    recipient: z.string().describe("The name/ID of the target fleet agent"),
-    message: z.string().describe("The message content to send"),
-    priority: z.enum(["low", "normal", "high"]).optional().default("normal"),
-  }),
+const schema = z.object({
+  to: z.string().describe("Target agent name (e.g., 'jetson-claw-1', 'forgemaster')"),
+  message: z.string().describe("Message content to send"),
+  priority: z.enum(["low", "normal", "high"]).default("normal"),
 });
 
-interface BottleResponse {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-  timestamp: number;
-}
+const KEEPER_HOST = process.env.KEEPER_HOST ?? "http://localhost:8900";
 
-export async function sendFleetBottle(
-  recipient: string,
+export async function fleetBottle(
+  to: string,
   message: string,
   priority: "low" | "normal" | "high" = "normal",
-): Promise<BottleResponse> {
-  try {
-    const response = await fetch("http://localhost:8900/bottle", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Fleet-Agent": "fleet-agent",
-      },
-      body: JSON.stringify({
-        recipient,
-        message,
-        priority,
-        sender: "fleet-agent",
-        timestamp: Date.now(),
-      }),
-    });
+): Promise<{ success: boolean; bottleId: string; status: string }> {
+  const res = await fetch(`${KEEPER_HOST}/bottles/inbox`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to,
+      message,
+      priority,
+      from: "fleet-agent",
+      ts: Date.now(),
+    }),
+  });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        error: `Keeper responded with ${response.status}`,
-        timestamp: Date.now(),
-      };
-    }
-
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-      timestamp: Date.now(),
-    };
+  if (!res.ok) {
+    return { success: false, bottleId: "", status: `Failed: ${res.status}` };
   }
+
+  const data = (await res.json()) as { id?: string; status?: string };
+  return {
+    success: true,
+    bottleId: data.id ?? "unknown",
+    status: data.status ?? "delivered",
+  };
 }
+
+export const fleetBottleTool = {
+  description: "Send a message to another fleet agent via the keeper bottle service. Use for cross-agent coordination, task delegation, and status updates.",
+  parameters: schema,
+};

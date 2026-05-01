@@ -8,7 +8,7 @@ export type {
 export { defaultModel, defaultModelLabel, openAgent } from "./open-agent";
 // Skills exports
 export { discoverSkills, parseSkillFrontmatter } from "./skills/discovery";
-export { extractSkillBody, substituteArguments } from "./skills/loader";
+export { extractSkillBody, substituteArguments, injectSkillDirectory } from "./skills/loader";
 export type {
   SkillFrontmatter,
   SkillMetadata,

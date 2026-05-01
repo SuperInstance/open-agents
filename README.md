@@ -1,166 +1,111 @@
 # Fleet Agent
 
-**The core runtime for the Cocapn fleet agent workbench.**
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=open-agents&repository-name=open-agents&repository-url=https%3A%2F%2Fgithub.com%2FSuperInstance%2Fopen-agents)
 
-A cloud-hosted AI coding agent runtime that runs in isolated, resumable sandboxes. Designed for fleet deployment on Oracle Cloud or Vercel, powered by AI SDK.
-
-[![GitHub Repo](https://img.shields.io/badge/GitHub-SuperInstance%2Ffleet--agent-blue?style=flat-square&logo=github)](https://github.com/SuperInstance/fleet-agent)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE.md)
-
-## What It Does
+**Fleet Agent** is the Cocapn fleet's core agent runtime — the ship that takes agents from prompt to deployed code. It's a three-layer system:
 
 ```
-You prompt -> Agent runs in cloud -> Sandbox executes code -> Results streamed back
+Web UI → Agent Runtime → Sandbox Execution
 ```
 
-The agent is a durable workflow outside the sandbox. It commands the sandbox through tools (read, write, bash, grep, glob) without running inside the VM. This separation means:
+Built for fleet deployment: PLATO-powered structured reasoning, fleet-to-fleet communication via keeper, and multi-cloud sandbox adapters (Vercel + Oracle Cloud).
 
-- Agent execution is independent of request lifecycle
-- Sandboxes hibernate and resume via snapshot-based state
-- Model/provider choices evolve independently from the execution environment
+## What it does
 
-## Fleet Architecture
+- **Coding agents** with file, search, shell, task, skill, and web tools
+- **Fleet tools**: message other agents (`fleet_bottle`), query fleet knowledge (`fleet_query`)
+- **PLATO reasoning**: structured decomposition before tool execution (premise → reasoning → hypothesis → verification → conclusion)
+- **Multi-cloud sandboxes**: Vercel (default) or Oracle Cloud SSH-based execution
+- **Durable multi-step execution** with streaming, cancellation, and session resume
+- **GitHub integration**: auto-commit, push, and PR creation after successful runs
+- **Skills system**: load agent skills from disk with frontmatter metadata
+
+## Architecture
 
 ```
-Web (Next.js) -> Agent -> Sandbox (Vercel | Oracle Cloud)
-                    |
-                    +-> PLATO Reasoning (structured decomposition)
-                    |
-                    +-> Fleet Communication (keeper service :8900)
+apps/web          Next.js UI — auth, sessions, chat, streaming
+packages/agent    @cocapn/fleet-agent — tools, subagents, PLATO reasoning, fleet comms
+packages/sandbox  @cocapn/vessel — sandbox abstraction (Vercel + Oracle Cloud)
+packages/shared   @cocapn/shared — shared utilities
 ```
-
-**Core concept**: This is the "ship" that agents use to go from prompt to deployed code. Part of the Cocapn fleet system where:
-- **Agents** are crew members
-- **Sandboxes** are vessels (vessel = @cocapn/vessel)
-- **Repos** are boats to be refitted
-- **The keeper service** monitors agent proximity and routes messages
-
-## Packages
-
-| Package | Purpose |
-|---------|---------|
-| `@cocapn/fleet-agent` | Core agent: tools, subagents, PLATO reasoning, fleet communication |
-| `@cocapn/vessel` | Sandbox abstraction: Vercel Firecracker + Oracle Cloud SSH |
-| `@cocapn/shared` | Shared utilities (diff, paste blocks, tool state) |
-
-## Features
-
-- **PLATO Structured Reasoning**: Agents can call `reason(query)` to decompose problems via the PLATO chain (premise → reasoning → hypothesis → verification → conclusion)
-- **Fleet Communication**: Built-in `fleet_bottle` and `fleet_query` tools for inter-agent messaging via the keeper service
-- **Dual Sandbox Support**: Deploy on Vercel (Firecracker MicroVMs) or Oracle Cloud (SSH-based execution)
-- **Chat-driven coding** with file, search, shell, task, skill, and web tools
-- **Durable multi-step execution** via Workflow SDK (streaming + cancellation)
-- **Subagent pattern**: Explorer/executor subagents for parallel investigation
-- **Skill system**: Load and invoke modular skill packages
-- **GitHub integration**: Auto-commit, push, and PR creation
 
 ## Quick Start
 
 ```bash
-# Install dependencies
 bun install
-
-# Run locally
+cp apps/web/.env.example apps/web/.env
+# Fill in POSTGRES_URL and JWE_SECRET
 bun run web
 ```
 
-## Fleet Communication
+## Fleet Tools
 
-Agents can communicate with each other via the keeper service at port 8900:
+Agents have two extra tools beyond the standard toolkit:
 
-```typescript
-// Send a message to another fleet agent
-const result = await sendFleetBottle({
-  recipient: "jetson-claw-1",
-  message: "Deploy status check on vessel-xyz",
-  priority: "normal",
-});
+### `plato_reason`
+Structured reasoning before action. Decomposes queries through PLATO's 5-atom chain:
 
-// Query another agent for information
-const response = await queryFleetAgent({
-  target: "plato-server",
-  query: "What conclusions can you draw from this reasoning trace?",
-  timeout: 30000,
-});
+```
+premise → reasoning → hypothesis → verification → conclusion
 ```
 
-## PLATO Reasoning
+Always runs against the fleet's PLATO server at `http://localhost:8847`.
 
-The agent exposes structured reasoning via the PLATO decomposition chain:
+### `fleet_bottle`
+Send messages to other fleet agents via keeper:8900.
 
 ```typescript
-import { reason } from "@cocapn/fleet-agent";
+await fleetBottleTool.handler({ to: "forgemaster", message: "Sync complete", priority: "normal" });
+```
 
-// Structured problem decomposition
-const conclusion = await reason("Should we refactor the auth module?");
-// Returns: { premise, reasoning, hypothesis, verification, conclusion, atoms[] }
+### `fleet_query`
+Query another fleet agent for information.
+
+```typescript
+await fleetQueryTool.handler({ to: "jetson-claw-1", question: "What's the current GPU load?" });
 ```
 
 ## Oracle Cloud Deployment
 
-Deploy on Oracle Cloud Infrastructure for cost-effective, persistent execution:
+SSH-based sandbox for Oracle Cloud Infrastructure:
 
 ```typescript
-import { connectOracleSandbox, OracleSandbox } from "@cocapn/vessel/oracle";
+import { connectSandbox, type OracleState } from "@cocapn/vessel";
 
-const sandbox = await connectOracleSandbox({
-  host: "your-instance.oraclecloud.com",
+const state: OracleState = {
+  type: "oracle",
+  instanceId: "ocid1.instance.oc1...",
+  host: "144.24.x.x",
+  port: 22,
   user: "ubuntu",
-  privateKeyPath: "~/.ssh/oci_private_key",
+  keyPath: "~/.ssh/oci_id_rsa",
   workingDirectory: "/home/ubuntu/workspace",
-  timeout: 300000,
-});
+};
+
+const sandbox = await connectSandbox({ state });
 ```
 
-### Required Environment Variables
-
-```env
-POSTGRES_URL=     # PostgreSQL connection string
-JWE_SECRET=       # Session encryption (openssl rand -base64 32)
-ENCRYPTION_KEY=   # Additional encryption key
-```
-
-### Optional
-
-```env
-KEEPER_URL=              # Fleet keeper service (default: http://localhost:8900)
-PLATO_API_URL=           # PLATO reasoning service (default: http://localhost:8847)
-ORACLE_SSH_KEY=          # Path to Oracle Cloud SSH private key
-VERCEL_SANDBOX_BASE_SNAPSHOT_ID=  # Custom sandbox snapshot
-ELEVENLABS_API_KEY=      # Voice transcription
-```
-
-## Dev Commands
+## Useful Commands
 
 ```bash
-bun run web            # Run web app
-bun run dev            # Run all packages in dev mode
-bun run build          # Build all packages
-bun run check          # Lint and format check
-bun run fix            # Auto-fix lint/format
-bun run typecheck      # Type check all packages
-bun run ci             # Full CI check
+bun run web          # Start web app
+bun run check        # Lint + format
+bun run ci           # Full CI (check + typecheck + test)
 ```
 
-## Repo Layout
+## Repo Structure
 
 ```
-apps/web/          Next.js app, API routes, workflows, auth, chat UI
-packages/
-  agent/           Agent implementation, tools, subagents, PLATO, fleet tools
-  sandbox/        Sandbox abstraction (vercel/, oracle/)
-  shared/          Shared utilities
-  tsconfig/        TypeScript configs
-docs/              Architecture notes, code style
-scripts/           Dev scripts
+open-agents/
+├── apps/web/            Next.js UI + workflows
+├── packages/
+│   ├── agent/           @cocapn/fleet-agent — core agent
+│   │   ├── tools/       plato-reason, fleet-bottle, fleet-query + standard tools
+│   │   ├── subagents/   explorer + executor patterns
+│   │   └── skills/      skill discovery + loading
+│   ├── sandbox/         @cocapn/vessel — execution environments
+│   │   ├── vercel/      Vercel cloud sandbox
+│   │   └── oracle/      Oracle Cloud SSH sandbox
+│   └── shared/          utilities
+└── docs/agents/         Agent dev documentation
 ```
-
-## The Dojo Model
-
-This repo embodies the Cocapn dojo philosophy:
-- **Crew come in green** — New agents start with basic capabilities
-- **Work produces value while teaching** — Every task trains the fleet
-- **All paths are good paths** — Agents may stay, transfer, or fork off
-- **Growth is the metric, not retention** — Independent, capable agents are the goal
-
-See [AGENTS.md](AGENTS.md) for AI coding conventions used in this repo.
